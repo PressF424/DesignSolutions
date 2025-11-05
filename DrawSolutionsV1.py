@@ -6,7 +6,7 @@ import math
 class DeformableCanvasApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Деформируемый Paint")
+        self.root.title("DrawSolutions")
         self.root.geometry("900x700")
 
         # Основной фрейм
@@ -14,10 +14,10 @@ class DeformableCanvasApp:
         top_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
         # Выбор шаблона
-        tk.Label(top_frame, text="Шаблон:").pack(side=tk.LEFT)
-        self.pattern_var = tk.StringVar(value="Синусоидальный")
+        tk.Label(top_frame, text="Стиль:").pack(side=tk.LEFT)
+        self.pattern_var = tk.StringVar(value="Нет")
         # Добавлены новые шаблоны
-        pattern_options = ["Синусоидальный", "Круговой", "Спиральный", "Волны", "Вихрь", "Кристалл", "Клетка", "Нет"]
+        pattern_options = ["Синусоидальный", "Круговой", "Спиральный", "Волны", "Турбулентность", "Метаморфоз", "Кристалл", "Фрактал", "Пульсар", "Хаос", "Нет"]        
         self.pattern_menu = tk.OptionMenu(top_frame, self.pattern_var, *pattern_options)
         self.pattern_menu.pack(side=tk.LEFT, padx=5)
 
@@ -30,7 +30,7 @@ class DeformableCanvasApp:
         # Толщина
         tk.Label(top_frame, text="Толщина:").pack(side=tk.LEFT, padx=(10, 0))
         self.brush_size = tk.Scale(top_frame, from_=1, to=10, orient=tk.HORIZONTAL, length=100)
-        self.brush_size.set(2)
+        self.brush_size.set(4)
         self.brush_size.pack(side=tk.LEFT, padx=5)
 
         # Кнопка очистки
@@ -38,7 +38,7 @@ class DeformableCanvasApp:
         clear_btn.pack(side=tk.LEFT, padx=5)
 
         # Кнопка сохранения
-        save_btn = tk.Button(top_frame, text="Сохранить PNG", command=self.save_as_png)
+        save_btn = tk.Button(top_frame, text="Сохранить в PNG", command=self.save_as_png)
         save_btn.pack(side=tk.RIGHT, padx=5)
 
         # Холст
@@ -46,7 +46,7 @@ class DeformableCanvasApp:
         self.canvas.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Состояния
-        self.lines = []  # [(points, color, width), ...]
+        self.lines = []
         self.current_line = None
         self.previous_point = None  # Для интерполяции
         self.is_animated = False
@@ -184,6 +184,28 @@ class DeformableCanvasApp:
                 grid_y = (y // grid_size) * grid_size
                 dx = (grid_x - x) * 0.1 * math.sin(self.deformation_offset)
                 dy = (grid_y - y) * 0.1 * math.cos(self.deformation_offset)
+            elif pattern == "Фрактал":
+                dx = 8 * math.sin(0.02 * x + math.sin(0.05 * y + self.deformation_offset))
+                dy = 8 * math.cos(0.02 * y + math.cos(0.05 * x + self.deformation_offset))
+            elif pattern == "Пульсар":
+                center_x, center_y = 400, 300
+                dist = math.sqrt((x - center_x)**2 + (y - center_y)**2)
+                angle = math.atan2(y - center_y, x - center_x)
+                pulse_freq = 0.05
+                pulse = math.sin(pulse_freq * dist - 2 * self.deformation_offset)
+                dx = 15 * pulse * math.cos(angle)
+                dy = 15 * pulse * math.sin(angle)
+            elif pattern == "Хаос":
+                dx = (
+                    5 * math.sin(0.03 * x + self.deformation_offset) +
+                    7 * math.cos(0.02 * y - 1.3 * self.deformation_offset) +
+                    4 * math.sin(0.01 * (x + y) + 0.7 * self.deformation_offset)
+                )
+                dy = (
+                    6 * math.cos(0.025 * x - 0.8 * self.deformation_offset) +
+                    5 * math.sin(0.015 * y + 1.1 * self.deformation_offset) +
+                    3 * math.cos(0.01 * (x - y) - 0.5 * self.deformation_offset)
+                )
             elif pattern == "Нет":
                 dx, dy = 0, 0
             else:
