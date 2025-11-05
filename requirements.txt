@@ -1,0 +1,4 @@
+Pillow
+PyOpenGL
+PyOpenGL_accelerate
+opensimplex
